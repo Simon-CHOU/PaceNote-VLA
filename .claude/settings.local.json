@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(test:*)",
+      "Bash(./gradlew tasks:*)",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(gradlew.bat assembleDebug:*)",
+      "Bash(cmd /c \"cd /d F:\\\\ML\\\\PaceNote-VLA && gradlew.bat assembleDebug\")",
+      "Bash(gradle wrapper:*)",
+      "Bash(curl:*)",
+      "Bash(cmd /c \"cd /d F:\\\\ML\\\\PaceNote-VLA && gradlew.bat assembleDebug --no-daemon\")",
+      "Bash(powershell -Command:*)"
+    ]
+  }
+}

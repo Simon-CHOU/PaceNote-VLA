@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PaceNote VLA</string>
+    <string name="tagline">您的 AI 领航员</string>
+
+    <!-- Auth -->
+    <string name="sign_in">登录</string>
+    <string name="sign_out">登出</string>
+    <string name="sign_in_with_google">使用 Google 继续</string>
+    <string name="sign_in_with_github">使用 GitHub 继续</string>
+    <string name="auth_error">认证失败，请重试</string>
+
+    <!-- Drive Assistant -->
+    <string name="start_assistant">启动助手</string>
+    <string name="stop_assistant">停止助手</string>
+    <string name="assistant_active">助手已激活</string>
+    <string name="assistant_inactive">助手未激活</string>
+
+    <!-- Telemetry -->
+    <string name="g_force_label">G 值</string>
+    <string name="speed_label">速度</string>
+    <string name="lat_label">纬度</string>
+    <string name="lon_label">经度</string>
+    <string name="yaw_label">偏航率</string>
+
+    <!-- Alerts -->
+    <string name="alert_object_detected">盲区检测到物体！</string>
+    <string name="alert_high_g_force">检测到高 G 值机动</string>
+
+    <!-- Settings -->
+    <string name="settings">设置</string>
+    <string name="vehicle_settings">车辆设置</string>
+    <string name="lhd_rhd_toggle">左舵 / 右舵</string>
+    <string name="language">语言</string>
+    <string name="roi_adjustment">ROI 调整</string>
+
+    <!-- Monetization -->
+    <string name="upgrade_to_pro">升级到专业版</string>
+    <string name="free_tier_expired">7天试用已过期</string>
+    <string name="subscribe_monthly">月度订阅</string>
+    <string name="subscribe_yearly">年度订阅（省 40%%）</string>
+
+    <!-- Permissions -->
+    <string name="permission_required">需要权限</string>
+    <string name="grant_permissions">授予权限</string>
+    <string name="camera_permission_required">驾驶辅助需要摄像头权限</string>
+    <string name="location_permission_required">遥测需要位置权限</string>
+    <string name="audio_permission_required">语音交互需要音频权限</string>
+</resources>
