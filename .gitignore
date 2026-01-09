@@ -167,3 +167,12 @@ node_modules/
 # !.idea/libraries/
 # !.idea/jarRepositories.xml
 # !.gitignore
+
+# Windows reserved device names
+nul
+NUL
+con
+prn
+aux
+com*
+lpt*

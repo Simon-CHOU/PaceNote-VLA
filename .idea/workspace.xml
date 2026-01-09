@@ -17,18 +17,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="63f0b8c5-cedc-40ad-8ed2-90ab59d654ed" name="Changes" comment="feat: initial takeoff of v2.0 Pure Edge architecture&#10;&#10;- Rebuilt project from scratch targeting Android 16 (API 36) - Removed all 16KB-incompatible legacy SO libraries (MediaPipe/LiveKit) - Implemented CameraX-to-VlaBrain vision pipeline - Verified zero-crash startup on Android 16 environment">
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/aibrain/src/main/kotlin/com/pacenote/vla/core/aibrain/VlaBrain.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/aibrain/src/main/kotlin/com/pacenote/vla/core/aibrain/VlaBrain.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/feature/camera/src/main/kotlin/com/pacenote/vla/feature/camera/manager/CameraManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/feature/camera/src/main/kotlin/com/pacenote/vla/feature/camera/manager/CameraManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/feature/sensor/src/main/kotlin/com/pacenote/vla/feature/sensor/manager/SensorFusionManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/feature/sensor/src/main/kotlin/com/pacenote/vla/feature/sensor/manager/SensorFusionManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/feature/vision/src/main/kotlin/com/pacenote/vla/feature/vision/VisionManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/feature/vision/src/main/kotlin/com/pacenote/vla/feature/vision/VisionManager.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
