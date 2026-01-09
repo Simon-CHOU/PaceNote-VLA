@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pacenote.vla.feature.telemetry"
+    namespace = "com.pacenote.vla.feature.vision"
     compileSdk = 36
 
     defaultConfig {
@@ -22,7 +22,6 @@ android {
     kotlinOptions {
         jvmTarget = "17"
         freeCompilerArgs += listOf(
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
             "-opt-in=kotlinx.coroutines.FlowPreview"
         )
@@ -35,31 +34,30 @@ android {
 
 dependencies {
     implementation(project(":core:domain"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:sensor"))
+    implementation(project(":core:aibrain"))
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     // Compose
-    val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
-    implementation(composeBom)
+    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
     implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.3.1")
-    implementation("androidx.compose.material:material-icons-extended")
 
-    // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.3")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // CameraX (API 36 compatible)
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
+    implementation("androidx.camera:camera-extensions:1.4.1")
 
-    // Timber for logging
-    implementation("com.jakewharton.timber:timber:5.0.0")
+    // Coroutines & Flow
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.52")
     kapt("com.google.dagger:hilt-compiler:2.52")
 
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    // Timber
+    implementation("com.jakewharton.timber:timber:5.0.0")
 }

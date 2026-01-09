@@ -16,20 +16,102 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63f0b8c5-cedc-40ad-8ed2-90ab59d654ed" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/appInsightsSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/deviceManager.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/migrations.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/service/DriveAssistantService.kt" afterDir="false" />
+    <list default="true" id="63f0b8c5-cedc-40ad-8ed2-90ab59d654ed" name="Changes" comment="feat: initial takeoff of v2.0 Pure Edge architecture&#10;&#10;- Rebuilt project from scratch targeting Android 16 (API 36) - Removed all 16KB-incompatible legacy SO libraries (MediaPipe/LiveKit) - Implemented CameraX-to-VlaBrain vision pipeline - Verified zero-crash startup on Android 16 environment">
+      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/ui/dashboard/DashboardViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/aibrain/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/aibrain/src/main/kotlin/com/pacenote/vla/core/aibrain/VlaBrain.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/aibrain/src/main/kotlin/com/pacenote/vla/core/aibrain/di/AiBrainModule.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature/vision/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature/vision/src/main/kotlin/com/pacenote/vla/feature/vision/VisionManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature/vision/src/main/kotlin/com/pacenote/vla/feature/vision/di/VisionModule.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.13/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.13/fileHashes/resourceHashesCache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/3vzg5lunes9tfkohjmid4jigr/candidates.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/configuration-cache/3vzg5lunes9tfkohjmid4jigr/candidates.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/7imyrom36d3l3269c90a9dso4/candidates.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/configuration-cache/7imyrom36d3l3269c90a9dso4/candidates.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/.globals.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/.strings.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_app.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_core_database.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_core_domain.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_core_ui.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_auth.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_camera.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_livekit.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_media-pipe.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_monetization.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_sensor.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/_feature_telemetry.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/buildfingerprint.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/entry.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/projectfingerprint.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/84fa3a11-fbdd-4c37-841d-f643dabf9d90/work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/.globals.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/.strings.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_app.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_core_database.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_core_domain.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_core_ui.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_auth.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_camera.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_livekit.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_media-pipe.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_monetization.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_sensor.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/_feature_telemetry.work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/buildfingerprint.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/entry.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/projectfingerprint.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/configuration-cache/8ae2cacd-f719-47b2-919e-803ce485b389/work.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/SplashScene.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/di/MockDependencies.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/com/pacenote/vla/service/DriveAssistantService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/di/OfflineAuthModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/navigation/AuthNavigation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/repository/AuthRepository.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/repository/MockAuthRepository.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/service/OfflineAuthService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/ui/AuthScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/kotlin/com/pacenote/vla/feature/auth/viewmodel/AuthViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/auth/src/main/res/values/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/src/main/kotlin/com/pacenote/vla/feature/livekit/client/LiveKitClient.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/src/main/kotlin/com/pacenote/vla/feature/livekit/client/LiveKitTokenManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/src/main/kotlin/com/pacenote/vla/feature/livekit/di/LiveKitModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/src/main/kotlin/com/pacenote/vla/feature/livekit/manager/VlaSessionManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/livekit/src/main/kotlin/com/pacenote/vla/feature/livekit/ui/LiveKitStatusUI.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/assets/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/assets/efficientdet_lite0.tflite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/assets/labels.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/assets/object_detector.tflite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/kotlin/com/pacenote/vla/feature/mediapipe/detector/ObjectDetector.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/media-pipe/src/main/kotlin/com/pacenote/vla/feature/mediapipe/di/MediaPipeModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/ads/AdManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/di/DebugPurchaseModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/navigation/MonetizationNavigation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/service/DebugPurchaseService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/ui/MonetizationScreen.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/ui/UpgradePromptDialog.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/monetization/src/main/kotlin/com/pacenote/vla/feature/monetization/viewmodel/MonetizationViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature/telemetry/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/feature/telemetry/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -276,6 +358,11 @@
         </map>
       </branch-storage>
     </excluded-from-favorite>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="archive/v1.0-cloud-hybrid" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="SOFT" />
   </component>
@@ -288,26 +375,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/ML/PaceNote-VLA&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.app.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "F:/ML/PaceNote-VLA",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "File.Encoding"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="PaceNote-VLA.app" />
@@ -390,6 +481,31 @@
       <option name="presentableId" value="Default" />
       <updated>1767892613645</updated>
     </task>
+    <task id="LOCAL-00001" summary="chore: freeze v1.0 cloud-hybrid version (blocked by Android 16 16KB alignment)">
+      <option name="closed" value="true" />
+      <created>1767953296987</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1767953296987</updated>
+    </task>
+    <task id="LOCAL-00002" summary="chore: freeze v1.0 cloud-hybrid version DEATH_NOTE.md">
+      <option name="closed" value="true" />
+      <created>1767953416216</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1767953416216</updated>
+    </task>
+    <task id="LOCAL-00003" summary="refresh: PaceNote VLA v2.0 (Pure Edge)">
+      <option name="closed" value="true" />
+      <created>1767954033174</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1767954033174</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -418,6 +534,13 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="chore: freeze v1.0 cloud-hybrid version (blocked by Android 16 16KB alignment)" />
+    <MESSAGE value="chore: freeze v1.0 cloud-hybrid version DEATH_NOTE.md" />
+    <MESSAGE value="refresh: PaceNote VLA v2.0 (Pure Edge)" />
+    <MESSAGE value="feat: initial takeoff of v2.0 Pure Edge architecture&#10;&#10;- Rebuilt project from scratch targeting Android 16 (API 36) - Removed all 16KB-incompatible legacy SO libraries (MediaPipe/LiveKit) - Implemented CameraX-to-VlaBrain vision pipeline - Verified zero-crash startup on Android 16 environment" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: initial takeoff of v2.0 Pure Edge architecture&#10;&#10;- Rebuilt project from scratch targeting Android 16 (API 36) - Removed all 16KB-incompatible legacy SO libraries (MediaPipe/LiveKit) - Implemented CameraX-to-VlaBrain vision pipeline - Verified zero-crash startup on Android 16 environment" />
+  </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
@@ -434,6 +557,11 @@
         <entry key="com.pacenote.vla.debug.test">
           <value>
             <CheckInfo lastCheckTimestamp="1767931265509" />
+          </value>
+        </entry>
+        <entry key="com.pacenote.vla.feature.auth.test">
+          <value>
+            <CheckInfo lastCheckTimestamp="1767953444532" />
           </value>
         </entry>
       </map>

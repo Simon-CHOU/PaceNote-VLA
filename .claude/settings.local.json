@@ -10,7 +10,8 @@
       "Bash(gradle wrapper:*)",
       "Bash(curl:*)",
       "Bash(cmd /c \"cd /d F:\\\\ML\\\\PaceNote-VLA && gradlew.bat assembleDebug --no-daemon\")",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(rm:*)"
     ]
   }
 }
