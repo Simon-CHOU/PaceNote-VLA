@@ -1,45 +1,54 @@
 package com.pacenote.vla.feature.vision
 
 import android.graphics.Bitmap
-import android.graphics.ImageFormat
-import android.graphics.Rect
 import androidx.camera.core.ImageProxy
 import com.pacenote.vla.core.aibrain.VlaBrain
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * VisionManager - Pure Edge Vision Processing
+ * VisionManager - Pure Edge Vision Processing v2.0
  *
- * Handles CameraX frame capture and routes to VlaBrain for on-device processing.
- * No cloud dependencies, no MediaPipe alignment issues.
+ * Manages the CameraX frame capture pipeline and routes to VlaBrain
+ * for on-device AI inference. Now includes:
+ * - Frame analysis with 224x224 downsampling
+ * - End-to-end latency tracking
+ * - Red pixel detection for mock reasoning
  */
 @Singleton
 class VisionManager @Inject constructor(
-    // @ApplicationContext private val context: Context,
     private val vlaBrain: VlaBrain
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // AI action flow
     private val _aiActionFlow = MutableStateFlow<VlaBrain.VlaAction?>(null)
-    val aiActionFlow: Flow<VlaBrain.VlaAction?> = _aiActionFlow.asStateFlow()
+    val aiActionFlow: StateFlow<VlaBrain.VlaAction?> = _aiActionFlow.asStateFlow()
 
+    // Status tracking
     private val _statusFlow = MutableStateFlow<VisionStatus>(VisionStatus.Idle)
-    val statusFlow: Flow<VisionStatus> = _statusFlow.asStateFlow()
+    val statusFlow: StateFlow<VisionStatus> = _statusFlow.asStateFlow()
 
-    private var frameCount = 0
-    private var lastProcessedTime = 0L
+    // Latency metrics
+    private val _latencyMs = MutableStateFlow(0L)
+    val latencyMs: StateFlow<Long> = _latencyMs.asStateFlow()
+
+    private val totalLatency = AtomicLong(0)
+    private var processedFrameCount = 0
+
+    // Frame analyzer with latency tracking
+    val frameAnalyzer = VlaFrameAnalyzer { bitmap, latency, telemetry ->
+        onFrameAnalyzed(bitmap, latency, telemetry)
+    }
 
     sealed class VisionStatus {
         data object Idle : VisionStatus()
@@ -49,24 +58,15 @@ class VisionManager @Inject constructor(
 
     /**
      * Process a frame from CameraX
-     * Converts to Bitmap and sends to VlaBrain
+     * NOTE: With the new VlaFrameAnalyzer, frames are processed directly
+     * by the analyzer. This method is kept for backward compatibility.
      */
     suspend fun processFrame(imageProxy: ImageProxy, telemetry: VlaBrain.TelemetryContext?) {
         _statusFlow.value = VisionStatus.Processing
 
         try {
-            // Rate limiting: max 5 FPS for AI processing to save battery
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastProcessedTime < 200) {
-                imageProxy.close()
-                return
-            }
-            lastProcessedTime = currentTime
-
             // Convert ImageProxy to Bitmap
-            val bitmap = withContext(Dispatchers.Default) {
-                imageProxyToBitmap(imageProxy)
-            }
+            val bitmap = imageProxyToBitmap(imageProxy)
 
             if (bitmap != null) {
                 val vlaFrame = VlaBrain.VlaFrame(
@@ -76,16 +76,9 @@ class VisionManager @Inject constructor(
                 )
 
                 // Process with VlaBrain
-                vlaBrain.processFrame(vlaFrame)
-                    .onEach { action ->
-                        _aiActionFlow.value = action
-                        Timber.tag("VisionManager").d(
-                            "AI Action: ${action.alert} - ${action.message} (${action.confidence})"
-                        )
-                    }
-                    .launchIn(scope)
-
-                frameCount++
+                processWithVlaBrain(vlaFrame)
+            } else {
+                Timber.tag("VisionManager").w("Failed to convert frame to bitmap")
             }
 
         } catch (e: Exception) {
@@ -97,49 +90,82 @@ class VisionManager @Inject constructor(
     }
 
     /**
-     * Convert CameraX ImageProxy to Bitmap
-     * Handles YUV_420_888 format from back camera
+     * Callback from VlaFrameAnalyzer when a frame is analyzed
      */
-    private fun imageProxyToBitmap(image: ImageProxy): Bitmap? {
-        return try {
-            val yBuffer = image.planes[0].buffer // Y
-            val uBuffer = image.planes[1].buffer // U
-            val vBuffer = image.planes[2].buffer // V
+    private fun onFrameAnalyzed(
+        bitmap: Bitmap,
+        latencyMs: Long,
+        telemetry: VlaBrain.TelemetryContext?
+    ) {
+        // Update latency metrics
+        _latencyMs.value = latencyMs
+        totalLatency.addAndGet(latencyMs)
+        processedFrameCount++
 
-            val ySize = yBuffer.remaining()
-            val uSize = uBuffer.remaining()
-            val vSize = vBuffer.remaining()
+        // Create VlaFrame and process
+        val vlaFrame = VlaBrain.VlaFrame(
+            bitmap = bitmap,
+            timestamp = System.currentTimeMillis(),
+            telemetry = telemetry
+        )
 
-            val nv21 = ByteArray(ySize + uSize + vSize)
+        // Process with VlaBrain
+        processWithVlaBrain(vlaFrame)
+    }
 
-            // U and V are swapped
-            yBuffer.get(nv21, 0, ySize)
-            vBuffer.get(nv21, ySize, vSize)
-            uBuffer.get(nv21, ySize + vSize, uSize)
-
-            val yuvImage = android.graphics.YuvImage(
-                nv21,
-                ImageFormat.NV21,
-                image.width,
-                image.height,
-                null
-            )
-
-            val out = java.io.ByteArrayOutputStream()
-            yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 90, out)
-            val imageBytes = out.toByteArray()
-            android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        } catch (e: Exception) {
-            Timber.tag("VisionManager").e(e, "Bitmap conversion failed")
-            null
+    /**
+     * Process frame with VlaBrain
+     */
+    private fun processWithVlaBrain(frame: VlaBrain.VlaFrame) {
+        scope.launch {
+            try {
+                vlaBrain.processFrame(frame).collect { action ->
+                    _aiActionFlow.value = action
+                    Timber.tag("VisionManager").d(
+                        "AI Action: ${action.alert} - ${action.message} (${action.confidence})"
+                    )
+                }
+            } catch (e: Exception) {
+                Timber.tag("VisionManager").e(e, "VlaBrain processing failed")
+                _statusFlow.value = VisionStatus.Error(e.message ?: "VlaBrain error")
+            }
         }
     }
 
     /**
-     * Initialize the VlaBrain AI
+     * Convert ImageProxy to Bitmap (legacy method for backward compatibility)
      */
-    suspend fun initialize(apiKey: String? = null): Result<Unit> {
-        return vlaBrain.initialize(apiKey)
+    private fun imageProxyToBitmap(image: ImageProxy): Bitmap? {
+        val yBuffer = image.planes[0].buffer
+        val uBuffer = image.planes[1].buffer
+        val vBuffer = image.planes[2].buffer
+
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
+
+        val nv21 = ByteArray(ySize + uSize + vSize)
+
+        yBuffer.get(nv21, 0, ySize)
+        vBuffer.get(nv21, ySize, vSize)
+        uBuffer.get(nv21, ySize + vSize, uSize)
+
+        val yuvImage = android.graphics.YuvImage(
+            nv21,
+            android.graphics.ImageFormat.NV21,
+            image.width,
+            image.height,
+            null
+        )
+
+        val out = java.io.ByteArrayOutputStream()
+        yuvImage.compressToJpeg(
+            android.graphics.Rect(0, 0, image.width, image.height),
+            90,
+            out
+        )
+        val imageBytes = out.toByteArray()
+        return android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 
     /**
@@ -153,10 +179,45 @@ class VisionManager @Inject constructor(
     fun isReady(): Boolean = vlaBrain.isReady()
 
     /**
+     * Get average latency across all processed frames
+     */
+    fun getAverageLatency(): Long {
+        return if (processedFrameCount > 0) {
+            totalLatency.get() / processedFrameCount
+        } else {
+            0
+        }
+    }
+
+    /**
+     * Get performance status string
+     */
+    fun getPerformanceStatus(): String {
+        val avgLatency = getAverageLatency()
+        return when {
+            avgLatency == 0L -> "No frames processed"
+            avgLatency < 50 -> "✓ Excellent (${avgLatency}ms < 50ms target)"
+            avgLatency < 100 -> "⚠ Good (${avgLatency}ms)"
+            else -> "✗ Slow (${avgLatency}ms > 100ms)"
+        }
+    }
+
+    /**
+     * Initialize the VlaBrain AI
+     */
+    suspend fun initialize(apiKey: String? = null): Result<Unit> {
+        return vlaBrain.initialize(apiKey)
+    }
+
+    /**
      * Release resources
      */
     fun release() {
         vlaBrain.release()
         _statusFlow.value = VisionStatus.Idle
+        Timber.tag("VisionManager").d(
+            "Performance summary: ${processedFrameCount} frames, " +
+            "avg latency: ${getAverageLatency()}ms"
+        )
     }
 }

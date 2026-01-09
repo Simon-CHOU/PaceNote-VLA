@@ -30,14 +30,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalLifecycleOwner as ComposeLocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.pacenote.vla.core.aibrain.VlaBrain
 import com.pacenote.vla.feature.camera.manager.CameraManager
 import com.pacenote.vla.feature.sensor.manager.SensorFusionManager
@@ -55,30 +56,42 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = ComposeLocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+    val lifecycle = lifecycleOwner.lifecycle
 
     val uiState by viewModel.uiState.collectAsState()
     val gForce by viewModel.gForce.collectAsState()
     val aiAction by viewModel.aiAction.collectAsState(initial = null)
     val aiStatus by viewModel.aiStatus.collectAsState()
+    val heartbeat by viewModel.sensorHeartbeat.collectAsState()
+    val rawSensorData by viewModel.rawSensorData.collectAsState()
 
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
 
-    val permissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
+    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+    val cameraGranted = cameraPermissionState.status.isGranted
 
     LaunchedEffect(Unit) {
+        // Bind sensors to lifecycle before initializing
+        viewModel.bindToLifecycle(lifecycle)
         viewModel.initialize()
     }
 
-    LaunchedEffect(permissionsState.allPermissionsGranted) {
-        if (permissionsState.allPermissionsGranted && previewView != null) {
+    LaunchedEffect(cameraGranted) {
+        if (!cameraGranted) {
+            cameraPermissionState.launchPermissionRequest()
+        }
+        if (cameraGranted && previewView != null && !uiState.isRecording) {
+            Timber.tag("DashboardScreen").i("Starting camera (permissions granted)")
+            viewModel.startCamera(lifecycleOwner, previewView!!)
+        }
+    }
+
+    // Backup: Start camera when previewView becomes available
+    LaunchedEffect(previewView) {
+        if (previewView != null && cameraGranted && !uiState.isRecording) {
+            Timber.tag("DashboardScreen").i("Starting camera via previewView LaunchedEffect")
             viewModel.startCamera(lifecycleOwner, previewView!!)
         }
     }
@@ -102,7 +115,7 @@ fun DashboardScreen(
                     .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                if (permissionsState.allPermissionsGranted) {
+                if (cameraGranted) {
                     AndroidView(
                         factory = { ctx ->
                             PreviewView(ctx).apply {
@@ -126,9 +139,9 @@ fun DashboardScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         androidx.compose.material3.Button(
-                            onClick = { permissionsState.launchMultiplePermissionRequest() }
+                            onClick = { cameraPermissionState.launchPermissionRequest() }
                         ) {
-                            Text("Grant Permissions")
+                            Text("Grant Permission")
                         }
                     }
                 }
@@ -150,7 +163,8 @@ fun DashboardScreen(
             // G-Force Meter
             GForceMeter(
                 longitudinalG = gForce.longitudinal,
-                lateralG = gForce.lateral
+                lateralG = gForce.lateral,
+                heartbeat = heartbeat
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -161,6 +175,14 @@ fun DashboardScreen(
                 aiAction = aiAction,
                 isConnected = uiState.isConnected
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Raw Sensor Data Debug Console
+            RawSensorDebugConsole(
+                rawSensorData = rawSensorData,
+                sensorType = "RAW SENSOR"
+            )
         }
     }
 }
@@ -168,10 +190,21 @@ fun DashboardScreen(
 @Composable
 fun GForceMeter(
     longitudinalG: Float,
-    lateralG: Float
+    lateralG: Float,
+    heartbeat: Int
 ) {
     val gForceDecimal = DecimalFormat("0.00")
     val magnitude = sqrt(longitudinalG * longitudinalG + lateralG * lateralG)
+
+    // Diagnostic: Log when composable receives values
+    androidx.compose.runtime.SideEffect {
+        if (magnitude > 0.01f) {
+            Timber.tag("GForceMeter").d(
+                "Composed with: lon=%.4f, lat=%.4f, mag=%.4f, heartbeat=%d",
+                longitudinalG, lateralG, magnitude, heartbeat
+            )
+        }
+    }
 
     // Color based on G-Force intensity
     val gColor = when {
@@ -180,6 +213,9 @@ fun GForceMeter(
         magnitude > 0.3f -> Color.Yellow
         else -> Color(0xFF00FF00) // Green
     }
+
+    // Heartbeat animation - changes opacity based on heartbeat count
+    val heartbeatAlpha = if (heartbeat % 2 == 0) 0.3f else 1.0f
 
     Box(
         modifier = Modifier
@@ -232,6 +268,17 @@ fun GForceMeter(
                 }
             }
         }
+
+        // Heartbeat indicator - center dot that flashes when sensor data arrives
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(
+                    Color.Cyan.copy(alpha = heartbeatAlpha),
+                    CircleShape
+                )
+                .align(Alignment.Center)
+        )
 
         // Direction indicator
         if (abs(lateralG) > 0.1f) {
@@ -327,6 +374,51 @@ fun StatusRow(
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(2f)
+        )
+    }
+}
+
+@Composable
+fun RawSensorDebugConsole(
+    rawSensorData: com.pacenote.vla.feature.sensor.manager.SensorFusionManager.RawSensorData,
+    sensorType: String
+) {
+    val debugDecimal = DecimalFormat("0.0000")
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF0A0A0A), CircleShape)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "RAW DEBUG ($sensorType)",
+            color = Color.Yellow,
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Show raw event.values directly - NO processing
+        StatusRow("Raw X", debugDecimal.format(rawSensorData.accelX), Color.Cyan)
+        StatusRow("Raw Y", debugDecimal.format(rawSensorData.accelY), Color.Cyan)
+        StatusRow("Raw Z", debugDecimal.format(rawSensorData.accelZ), Color.Cyan)
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Show magnitude for quick reference
+        val magnitude = sqrt(
+            rawSensorData.accelX * rawSensorData.accelX +
+            rawSensorData.accelY * rawSensorData.accelY +
+            rawSensorData.accelZ * rawSensorData.accelZ
+        )
+        StatusRow("|Raw|", debugDecimal.format(magnitude),
+            when {
+                magnitude > 1.0f -> Color.Red
+                magnitude > 0.5f -> Color.Yellow
+                magnitude > 0.1f -> Color(0xFF00FF00)
+                else -> Color.Gray
+            }
         )
     }
 }

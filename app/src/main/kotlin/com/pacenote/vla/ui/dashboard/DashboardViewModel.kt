@@ -1,9 +1,12 @@
 package com.pacenote.vla.ui.dashboard
 
 import androidx.camera.view.PreviewView
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.pacenote.vla.core.aibrain.VlaBrain
 import com.pacenote.vla.core.domain.model.GForceVector
 import com.pacenote.vla.core.domain.model.TelemetryData
@@ -18,6 +21,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.math.abs
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
@@ -38,19 +43,33 @@ class DashboardViewModel @Inject constructor(
     private val _aiStatus = MutableStateFlow<VlaBrain.AiStatus>(VlaBrain.AiStatus.Idle)
     val aiStatus: StateFlow<VlaBrain.AiStatus> = _aiStatus.asStateFlow()
 
+    // Expose sensor heartbeat for UI verification
+    val sensorHeartbeat: StateFlow<Int> = sensorFusionManager.heartbeat
+
+    // Expose raw sensor data for diagnostic debugging
+    val rawSensorData = sensorFusionManager.rawSensorData
+
     private var lastFrameTime = 0L
+    private var lifecycleBound = false
+
+    /**
+     * Bind sensor lifecycle to the dashboard lifecycle
+     * This ensures sensors start/stop with the UI
+     */
+    fun bindToLifecycle(lifecycle: Lifecycle) {
+        if (!lifecycleBound) {
+            sensorFusionManager.bindToLifecycle(lifecycle)
+            lifecycleBound = true
+            Timber.tag("DashboardViewModel").d("Sensors bound to lifecycle")
+        }
+    }
 
     fun initialize() {
         viewModelScope.launch {
             try {
                 // Initialize VlaBrain
-                val result = visionManager.getAiStatus()
-                _aiStatus.value = result
-
-                if (result is VlaBrain.AiStatus.Idle) {
-                    visionManager.initialize()
-                    _aiStatus.value = visionManager.getAiStatus()
-                }
+                val result = visionManager.initialize()
+                _aiStatus.value = visionManager.getAiStatus()
 
                 // Start sensor telemetry collection
                 launch { collectTelemetry() }
@@ -123,12 +142,40 @@ class DashboardViewModel @Inject constructor(
 
     private suspend fun collectTelemetry() {
         try {
+            var sampleCount = 0
             sensorFusionManager.telemetryFlow.collect { telemetry ->
+                sampleCount++
+
+                // Create G-Force vector - verify NOT hardcoded
                 val gForceVector = GForceVector(
                     longitudinal = telemetry.longitudinalG,
                     lateral = telemetry.lateralG
                 )
                 _gForce.value = gForceVector
+
+                // CRITICAL: Log every update to verify data flow
+                // Log every 10th sample or significant values
+                if (sampleCount % 10 == 0 || abs(telemetry.longitudinalG) > 0.05f || abs(telemetry.lateralG) > 0.05f) {
+                    Timber.tag("DashboardViewModel").i(
+                        "UI State Update #$sampleCount: Lon=%.4f, Lat=%.4f | Vector: lon=%.4f, lat=%.4f | Raw accel: x=%.4f, y=%.4f",
+                        telemetry.longitudinalG,
+                        telemetry.lateralG,
+                        gForceVector.longitudinal,
+                        gForceVector.lateral,
+                        telemetry.accelerationX,
+                        telemetry.accelerationY
+                    )
+                }
+
+                // Log if values are stuck at zero
+                if (sampleCount % 50 == 0 && telemetry.longitudinalG == 0f && telemetry.lateralG == 0f) {
+                    Timber.tag("DashboardViewModel").w(
+                        "WARNING: G-Force stuck at zero after $sampleCount samples! Raw accel: x=%.4f, y=%.4f, z=%.4f",
+                        telemetry.accelerationX,
+                        telemetry.accelerationY,
+                        telemetry.accelerationZ
+                    )
+                }
 
                 // Detect maneuvers for AI sampling
                 val maneuver = sensorFusionManager.detectManeuver(telemetry)
@@ -160,6 +207,7 @@ class DashboardViewModel @Inject constructor(
         super.onCleared()
         cameraManager.release()
         visionManager.release()
+        sensorFusionManager.stop()
         Timber.tag("DashboardViewModel").d("Resources released")
     }
 }

@@ -147,30 +147,11 @@ class VlaBrain @Inject constructor(
      */
     private suspend fun analyzeFrame(frame: VlaFrame): VlaAction = withContext(Dispatchers.IO) {
         try {
-            // Check telemetry for immediate hazards
-            val telemetry = frame.telemetry
-            val alertLevel = when {
-                telemetry != null && telemetry.gForceLongitudinal < -0.4f -> AlertLevel.HIGH
-                telemetry != null && abs(telemetry.gForceLateral) > 0.4f -> AlertLevel.MEDIUM
-                else -> AlertLevel.LOW
-            }
+            // Detect red pixels in the bitmap (for brake light detection)
+            val redPixelRatio = detectRedPixels(frame.bitmap)
 
-            // For demo purposes, return a simple action
-            // In production, this would call the generative model
-            val message = when (alertLevel) {
-                AlertLevel.HIGH -> "Hard braking detected - preparing corner entry analysis"
-                AlertLevel.MEDIUM -> "Sharp turn in progress - monitoring apex"
-                AlertLevel.LOW -> "Monitoring driving conditions"
-                else -> "System ready"
-            }
-
-            VlaAction(
-                alert = alertLevel,
-                message = message,
-                tts = if (alertLevel != AlertLevel.NONE) message else null,
-                confidence = 0.85f,
-                timestamp = frame.timestamp
-            )
+            // Use processContext for full analysis
+            processContext(frame.bitmap, redPixelRatio, frame.telemetry)
         } catch (e: Exception) {
             Timber.tag("VlaBrain").e(e, "Frame analysis failed")
             VlaAction(
@@ -179,6 +160,106 @@ class VlaBrain @Inject constructor(
                 tts = null,
                 confidence = 0f
             )
+        }
+    }
+
+    /**
+     * Process context with vision and telemetry data
+     * This is the main entry point for VLA reasoning
+     *
+     * @param bitmap The captured frame (224x224)
+     * @param redPixelRatio Ratio of red pixels detected (0.0 to 1.0)
+     * @param telemetry Current sensor telemetry context
+     * @return VlaAction with alert level and message
+     */
+    fun processContext(
+        bitmap: Bitmap,
+        redPixelRatio: Float = 0f,
+        telemetry: TelemetryContext? = null
+    ): VlaAction {
+        val lateralG = telemetry?.gForceLateral ?: 0f
+        val longitudinalG = telemetry?.gForceLongitudinal ?: 0f
+
+        // Mock reasoning: Detect heavy braking
+        // Condition: High lateral G (>0.5) AND significant red pixels (>1%)
+        // This simulates detecting brake lights during hard cornering
+        val isHeavyBraking = abs(lateralG) > 0.5f && redPixelRatio > 0.01f
+
+        val alertLevel = when {
+            isHeavyBraking -> AlertLevel.CRITICAL
+            longitudinalG < -0.4f -> AlertLevel.HIGH
+            abs(lateralG) > 0.4f -> AlertLevel.MEDIUM
+            redPixelRatio > 0.02f -> AlertLevel.LOW  // Brake lights detected
+            else -> AlertLevel.NONE
+        }
+
+        val message = when {
+            isHeavyBraking -> "HEAVY BRAKING DETECTED - Red pixels: ${(redPixelRatio * 100).toInt()}%, Lateral G: ${String.format("%.2f", abs(lateralG))}"
+            alertLevel == AlertLevel.HIGH -> "Hard braking detected - G: ${String.format("%.2f", longitudinalG)}"
+            alertLevel == AlertLevel.MEDIUM -> "Sharp turn in progress - Lateral G: ${String.format("%.2f", lateralG)}"
+            alertLevel == AlertLevel.LOW -> "Brake lights detected - Ratio: ${(redPixelRatio * 100).toInt()}%"
+            else -> "System monitoring - All parameters normal"
+        }
+
+        val tts = when {
+            alertLevel >= AlertLevel.HIGH -> message
+            else -> null
+        }
+
+        return VlaAction(
+            alert = alertLevel,
+            message = message,
+            tts = tts,
+            confidence = when {
+                isHeavyBraking -> 0.95f
+                alertLevel == AlertLevel.HIGH -> 0.90f
+                alertLevel == AlertLevel.MEDIUM -> 0.80f
+                alertLevel == AlertLevel.LOW -> 0.70f
+                else -> 0.60f
+            },
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Detect red pixels in a bitmap
+     * Used for brake light detection in mock reasoning
+     *
+     * @param bitmap The image to analyze
+     * @return Ratio of red pixels (0.0 to 1.0)
+     */
+    private fun detectRedPixels(bitmap: Bitmap): Float {
+        var redPixelCount = 0
+        val totalPixels = bitmap.width * bitmap.height
+
+        // Sample every 10th pixel for performance
+        val stride = 10
+
+        try {
+            val pixels = IntArray(bitmap.width * bitmap.height)
+            bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+            for (i in pixels.indices step stride) {
+                val pixel = pixels[i]
+                val r = (pixel shr 16) and 0xFF
+                val g = (pixel shr 8) and 0xFF
+                val b = pixel and 0xFF
+
+                // Check if pixel is predominantly red
+                // Red pixel criteria: R > 150 and R > G * 1.5 and R > B * 1.5
+                if (r > 150 && r > g * 1.5f && r > b * 1.5f) {
+                    redPixelCount++
+                }
+            }
+        } catch (e: Exception) {
+            Timber.tag("VlaBrain").e(e, "Red pixel detection failed")
+        }
+
+        val sampledPixels = totalPixels / stride
+        return if (sampledPixels > 0) {
+            redPixelCount.toFloat() / sampledPixels
+        } else {
+            0f
         }
     }
 
